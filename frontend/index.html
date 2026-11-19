@@ -1,0 +1,90 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Notes Application</title>
+    <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+
+    <div class="container">
+        <aside class="sidebar">
+            <h2>MyNotes</h2>
+            <nav>
+    <button class="nav-btn active" data-filter="all">All Notes</button>
+    <button class="nav-btn" data-filter="favorite">Favorites</button>
+    <button class="nav-btn" data-filter="pinned">Pinned</button>
+    <button class="nav-btn" data-filter="Personal">Personal</button>
+    <button class="nav-btn" data-filter="Work">Work</button>
+    <button class="nav-btn" data-filter="archived">Archived</button>
+</nav>
+        </aside>
+
+        <main class="main-content">
+
+            
+<header class="header">
+    <div>
+        <h1>My Notes</h1>
+        <p>Organize your thoughts and ideas</p>
+    </div>
+
+    <div class="header-buttons">
+        <button id="themeBtn" class="theme-btn">Dark Mode</button>
+
+        <button id="addNoteBtn" class="add-btn">
+            + Add Note
+        </button>
+    </div>
+</header>
+
+   <div class="search-container">
+                <input
+                    type="text"
+                    id="searchInput"
+                    placeholder="Search your notes..."
+                >
+            </div>
+
+            <div id="noteFormContainer" class="note-form-container hidden">
+                <form id="noteForm">
+                    <h2 id="formTitle">Create Note</h2>
+                    <input
+                        type="text"
+                        id="noteTitle"
+                        placeholder="Enter note title"
+                        required
+                    >
+
+                    <textarea
+                        id="noteDescription"
+                        placeholder="Write your note here..."
+                        required
+                    ></textarea>
+
+                    <select id="noteCategory">
+                        <option value="Personal">Personal</option>
+                        <option value="Work">Work</option>
+                    </select>
+
+                    <div class="form-buttons">
+                        <button type="submit" id="saveBtn">Save Note</button>
+                        <button type="button" id="cancelBtn">Cancel</button>
+                    </div>
+
+                </form>
+
+            </div>
+            <div class="notes-header">
+                <h2 id="sectionTitle">All Notes</h2>
+                <p id="noteCount">0 Notes</p>
+            </div>
+
+            <div id="notesContainer" class="notes-container"></div>
+        </main>
+    </div>
+    <script src="js/script.js"></script>
+</body>
+</html>
