@@ -1,4 +1,3 @@
-
 const API_URL = "/api/notes";
 
 const notesContainer = document.getElementById("notesContainer");
