@@ -315,3 +315,42 @@ if (localStorage.getItem("theme") === "dark") {
     document.body.classList.add("dark-mode");
     themeBtn.textContent = "Light Mode";
 }
+
+
+const logoutBtn = document.getElementById("logoutBtn");
+
+if (logoutBtn) {
+    logoutBtn.addEventListener("click", async () => {
+        try {
+            const response = await fetch("/api/auth/logout", {
+                method: "POST"
+            });
+
+            const data = await response.json();
+
+            if (response.ok) {
+                window.location.href = "login.html";
+            } else {
+                alert(data.message);
+            }
+        } catch (error) {
+            alert("Logout failed. Please try again.");
+        }
+    });
+}
+
+async function checkLogin() {
+    try {
+        const response = await fetch("/api/auth/check");
+
+        if (!response.ok) {
+            window.location.href = "login.html";
+            return;
+        }
+
+    } catch (error) {
+        window.location.href = "login.html";
+    }
+}
+
+checkLogin();
