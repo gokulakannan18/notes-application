@@ -2,7 +2,7 @@ const crypto = require("crypto");
 const express = require("express");
 const bcrypt = require("bcryptjs");
 const User = require("../models/User");
-
+const transporter = require("../config/mailer");
 const router = express.Router();
 
 router.post("/register", async (req, res) => {
@@ -139,11 +139,13 @@ router.post("/forgot-password", async (req, res) => {
             });
         }
 
-        const user = await User.findOne({ email });
+        const user = await User.findOne({
+            email: email.trim().toLowerCase()
+        });
 
         if (!user) {
             return res.json({
-                message: "If the account exists, a reset link has been generated"
+                message: "If the account exists, a reset link has been sent to your email."
             });
         }
 
@@ -161,19 +163,52 @@ router.post("/forgot-password", async (req, res) => {
 
         const resetLink = `http://localhost:5000/reset-password.html?token=${resetToken}`;
 
-        console.log("Password reset link:", resetLink);
+        await transporter.sendMail({
+            from: `"Notes App" <${process.env.EMAIL_USER}>`,
+            to: user.email,
+            subject: "Reset Your Notes App Password",
+            text: `Hello ${user.name},
+
+You requested to reset your password.
+
+Click the link below to reset your password:
+${resetLink}
+
+This link expires in 15 minutes.
+
+If you did not request this, please ignore this email.`,
+            html: `
+                <div style="font-family: Arial, sans-serif; padding: 20px;">
+                    <h2>Password Reset Request</h2>
+                    <p>Hello ${user.name},</p>
+                    <p>You requested to reset your Notes App password.</p>
+                    <p>Click the button below to create a new password.</p>
+
+                    <a href="${resetLink}"
+                       style="display:inline-block;padding:12px 20px;
+                       background:#4f46e5;color:white;text-decoration:none;
+                       border-radius:6px;">
+                       Reset Password
+                    </a>
+
+                    <p>This link expires in 15 minutes.</p>
+                    <p>If you did not request this, you can ignore this email.</p>
+                </div>
+            `
+        });
 
         res.json({
-            message: "If the account exists, a reset link has been generated"
+            message: "If the account exists, a reset link has been sent to your email."
         });
 
     } catch (error) {
+        console.log("Forgot password error:", error.message);
+
         res.status(500).json({
-            message: "Unable to process password reset"
+            message: "Unable to send reset email. Please try again later."
         });
     }
 });
-
 router.post("/reset-password", async (req, res) => {
     try {
         const { token, password } = req.body;

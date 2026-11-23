@@ -545,7 +545,6 @@ body.dark-mode .note-actions button {
 .logout-btn:hover {
     background: #dc2626;
 }
-
 @media (max-width: 600px) {
     .header-buttons {
         flex-wrap: wrap;
@@ -555,7 +554,6 @@ body.dark-mode .note-actions button {
         width: 100%;
     }
 }
-
 body.dark-mode .logout-btn {
     background: #dc2626;
     color: white;

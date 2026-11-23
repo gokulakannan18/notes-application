@@ -1,16 +1,12 @@
-
 const loginForm = document.getElementById("loginForm");
 const registerForm = document.getElementById("registerForm");
 const authMessage = document.getElementById("authMessage");
-
 if (registerForm) {
     registerForm.addEventListener("submit", async (e) => {
         e.preventDefault();
-
         const name = document.getElementById("registerName").value.trim();
         const email = document.getElementById("registerEmail").value.trim();
         const password = document.getElementById("registerPassword").value;
-
         try {
             const response = await fetch("/api/auth/register", {
                 method: "POST",
@@ -35,7 +31,6 @@ if (registerForm) {
         }
     });
 }
-
 if (loginForm) {
     loginForm.addEventListener("submit", async (e) => {
         e.preventDefault();
@@ -65,15 +60,11 @@ if (loginForm) {
         }
     });
 }
-
 const forgotPasswordForm = document.getElementById("forgotPasswordForm");
-
 if (forgotPasswordForm) {
     forgotPasswordForm.addEventListener("submit", async (e) => {
         e.preventDefault();
-
         const email = document.getElementById("forgotEmail").value.trim();
-
         try {
             const response = await fetch("/api/auth/forgot-password", {
                 method: "POST",
@@ -95,9 +86,7 @@ if (forgotPasswordForm) {
         }
     });
 }
-
 const resetPasswordForm = document.getElementById("resetPasswordForm");
-
 if (resetPasswordForm) {
     resetPasswordForm.addEventListener("submit", async (e) => {
         e.preventDefault();

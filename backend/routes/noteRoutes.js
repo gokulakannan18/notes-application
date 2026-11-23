@@ -54,7 +54,6 @@ router.delete("/:id", async (req, res) => {
         if (!note) {
             return res.status(404).json({ message: "Note not found" });
         }
-
         res.json({ message: "Note deleted successfully" });
     } catch (err) {
         res.status(400).json({ message: "Invalid note ID" });
