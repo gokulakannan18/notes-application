@@ -8,8 +8,8 @@ const MongoStore = require("connect-mongo").default;
 
 const noteRoutes = require("./routes/noteRoutes");
 const authRoutes = require("./routes/authRoutes");
-
-
+const folderRoutes = require("./routes/folderRoutes");
+const categoryRoutes = require("./routes/categoryRoutes");
 
 const app = express();
 
@@ -32,6 +32,8 @@ app.use(session({
 const isLoggedIn = require("./middleware/authMiddleware");
 app.use("/api/auth", authRoutes);
 app.use("/api/notes", isLoggedIn, noteRoutes);
+app.use("/api/folders", isLoggedIn, folderRoutes);
+app.use("/api/categories", isLoggedIn, categoryRoutes);
 mongoose.connect(process.env.MONGO_URI)
     .then(() => {
         console.log("MongoDB Connected");
