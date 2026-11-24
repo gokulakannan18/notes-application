@@ -1,4 +1,6 @@
+
 const mongoose = require("mongoose");
+
 const noteSchema = new mongoose.Schema({
     title: {
         type: String,
@@ -23,8 +25,14 @@ const noteSchema = new mongoose.Schema({
     isArchived: {
         type: Boolean,
         default: false
+    },
+    folder: {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: "Folder",
+        default: null
     }
 }, {
     timestamps: true
 });
+
 module.exports = mongoose.model("Note", noteSchema);

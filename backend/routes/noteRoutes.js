@@ -3,7 +3,15 @@ const router = express.Router();
 const Note = require("../models/Note");
 router.post("/", async (req, res) => {
     try {
-        const note = await Note.create(req.body);
+        const { title, description, category, folder } = req.body;
+
+        const note = await Note.create({
+            title,
+            description,
+            category,
+            folder
+        });
+
         res.status(201).json(note);
     } catch (err) {
         res.status(400).json({ message: err.message });
