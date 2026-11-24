@@ -5,20 +5,138 @@ const noteForm = document.getElementById("noteForm");
 const noteFormContainer = document.getElementById("noteFormContainer");
 const addNoteBtn = document.getElementById("addNoteBtn");
 const cancelBtn = document.getElementById("cancelBtn");
-
+const addFolderBtn = document.getElementById("addFolderBtn");
 const noteTitle = document.getElementById("noteTitle");
 const noteDescription = document.getElementById("noteDescription");
 const noteCategory = document.getElementById("noteCategory");
-
+const noteFolder = document.getElementById("noteFolder");
+const categoryFilters = document.getElementById("categoryFilters");
 const searchInput = document.getElementById("searchInput");
 const noteCount = document.getElementById("noteCount");
 const sectionTitle = document.getElementById("sectionTitle");
 const formTitle = document.getElementById("formTitle");
 
 let notes = [];
+let folders = [];
 let editingId = null;
 let currentFilter = "all";
+async function loadCategories() {
+    try {
+        const response = await fetch("/api/categories");
 
+        if (!response.ok) {
+            throw new Error("Unable to load categories");
+        }
+
+        const categories = await response.json();
+
+        noteCategory.innerHTML = '<option value="">Select Category</option>';
+        categoryFilters.innerHTML = "";
+
+        categories.forEach(category => {
+            const option = document.createElement("option");
+            option.value = category.name;
+            option.textContent = category.name;
+            noteCategory.appendChild(option);
+
+            const button = document.createElement("button");
+            button.className = "nav-btn";
+            button.textContent = category.name;
+            button.dataset.filter = category.name;
+
+            button.addEventListener("click", () => {
+                currentFilter = category.name;
+
+                document.querySelector(".nav-btn.active")
+                    ?.classList.remove("active");
+
+                button.classList.add("active");
+                sectionTitle.textContent = category.name;
+
+                displayNotes();
+            });
+
+            categoryFilters.appendChild(button);
+        });
+
+    } catch (error) {
+        console.log(error);
+    }
+}
+async function loadFolders() {
+    try {
+        const response = await fetch("/api/folders");
+
+        if (!response.ok) {
+            throw new Error("Unable to load folders");
+        }
+
+        folders = await response.json();
+        const folderFilters = document.getElementById("folderFilters");
+        noteFolder.innerHTML = '<option value="">No Folder</option>';
+
+folders.forEach(folder => {
+    const option = document.createElement("option");
+    option.value = folder._id;
+    option.textContent = folder.name;
+    noteFolder.appendChild(option);
+});
+        folderFilters.innerHTML = "";
+
+        folders.forEach(folder => {
+            const button = document.createElement("button");
+            button.className = "nav-btn";
+            button.textContent = folder.name;
+            button.dataset.filter = "folder-" + folder._id;
+
+            button.addEventListener("click", () => {
+                currentFilter = "folder-" + folder._id;
+
+                document.querySelector(".nav-btn.active")
+                    ?.classList.remove("active");
+
+                button.classList.add("active");
+                sectionTitle.textContent = folder.name;
+
+                displayNotes();
+            });
+             const deleteBtn = document.createElement("button");
+deleteBtn.textContent = "×";
+deleteBtn.className = "delete-folder-btn";
+deleteBtn.title = "Delete folder";
+
+deleteBtn.addEventListener("click", async (e) => {
+    e.stopPropagation();
+
+    const confirmDelete = confirm(`Delete folder "${folder.name}"?`);
+
+    if (!confirmDelete) return;
+
+    const response = await fetch(`/api/folders/${folder._id}`, {
+        method: "DELETE"
+    });
+
+    if (response.ok) {
+        await loadFolders();
+        getNotes();
+    } else {
+        alert("Failed to delete folder");
+    }
+});
+
+const folderContainer = document.createElement("div");
+folderContainer.className = "folder-item";
+
+folderContainer.appendChild(button);
+folderContainer.appendChild(deleteBtn);
+
+folderFilters.appendChild(folderContainer);
+        });
+
+    } catch (error) {
+        console.log(error);
+    }
+}
 async function getNotes() {
     try {
         const response = await fetch(API_URL);
@@ -56,10 +174,14 @@ function displayNotes() {
         filteredNotes = filteredNotes.filter(note => note.isFavorite);
     } else if (currentFilter === "pinned") {
         filteredNotes = filteredNotes.filter(note => note.isPinned);
+    } else if (currentFilter.startsWith("folder-")) {
+        const folderId = currentFilter.replace("folder-", "");
+
+        filteredNotes = filteredNotes.filter(note => {
+            return note.folder && note.folder.toString() === folderId;
+        });
     } else if (currentFilter !== "all") {
-        filteredNotes = filteredNotes.filter(
-            note => note.category === currentFilter
-        );
+        filteredNotes = filteredNotes.filter(note => note.category === currentFilter);
     }
 }
 
@@ -93,7 +215,14 @@ function displayNotes() {
         const category = document.createElement("span");
         category.className = "note-category";
         category.textContent = note.category;
+       const folderName = folders.find(folder => folder._id === note.folder)?.name;
 
+if (folderName) {
+    const folderLabel = document.createElement("span");
+    folderLabel.className = "note-folder";
+    folderLabel.textContent = "📁 " + folderName;
+    content.appendChild(folderLabel);
+}
         content.append(title, description, category);
 
         const actions = document.createElement("div");
@@ -146,11 +275,12 @@ cancelBtn.addEventListener("click", () => {
 noteForm.addEventListener("submit", async (e) => {
     e.preventDefault();
 
-    const noteData = {
-        title: noteTitle.value.trim(),
-        description: noteDescription.value.trim(),
-        category: noteCategory.value
-    };
+   const noteData = {
+    title: noteTitle.value.trim(),
+    description: noteDescription.value.trim(),
+    category: noteCategory.value,
+    folder: noteFolder.value || null
+};
 
     if (!noteData.title || !noteData.description) {
         alert("Please enter both title and description");
@@ -179,9 +309,9 @@ noteForm.addEventListener("submit", async (e) => {
         }
 
         if (!response.ok) {
-            throw new Error("Unable to save note");
-        }
-
+         const errorData = await response.json();
+    throw new Error(errorData.message || "Unable to save note");
+}
         noteForm.reset();
         noteFormContainer.classList.add("hidden");
         editingId = null;
@@ -202,6 +332,8 @@ function editNote(note) {
 
     formTitle.textContent = "Edit Note";
     noteFormContainer.classList.remove("hidden");
+    noteCategory.value = note.category;
+    noteFolder.value = note.folder || "";
 }
 
 async function deleteNote(id) {
@@ -295,7 +427,37 @@ document.querySelectorAll(".nav-btn").forEach(button => {
 });
 
 getNotes();
+loadCategories();
+loadFolders();
+addFolderBtn.addEventListener("click", async () => {
+    const name = prompt("Enter folder name:");
 
+    if (!name || !name.trim()) {
+        return;
+    }
+
+    try {
+        const response = await fetch("/api/folders", {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json"
+            },
+            body: JSON.stringify({ name: name.trim() })
+        });
+
+        const data = await response.json();
+
+        if (!response.ok) {
+            throw new Error(data.message || "Unable to create folder");
+        }
+
+        alert("Folder created successfully!");
+        await loadFolders();
+
+    } catch (error) {
+        alert(error.message);
+    }
+});
 //theme toggle
 const themeBtn = document.getElementById("themeBtn");
 
@@ -354,3 +516,4 @@ async function checkLogin() {
 }
 
 checkLogin();
+

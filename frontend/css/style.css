@@ -558,3 +558,65 @@ body.dark-mode .logout-btn {
     background: #dc2626;
     color: white;
 }
+#categoryFilters {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    margin-top: 5px;
+}
+
+#categoryFilters .nav-btn {
+    width: 100%;
+    text-align: left;
+    padding: 12px 15px;
+    border: none;
+    border-radius: 8px;
+    background: transparent;
+    color: inherit;
+    cursor: pointer;
+    transition: background 0.2s ease, color 0.2s ease;
+}
+
+#categoryFilters .nav-btn:hover {
+    background-color: #eaeaea;
+}
+
+#categoryFilters .nav-btn.active {
+    background-color: #e8eaff;
+    color: #4f46e5;
+    font-weight: 600;
+}
+
+body.dark-mode #categoryFilters .nav-btn:hover {
+    background-color: #2a2a2a;
+}
+
+body.dark-mode #categoryFilters .nav-btn.active {
+    background-color: #303451;
+    color: #a5b4fc;
+}
+.folder-item {
+    display: flex;
+    align-items: center;
+    gap: 5px;
+    margin-bottom: 5px;
+}
+
+.folder-item .nav-btn {
+    flex: 1;
+    text-align: left;
+}
+
+.delete-folder-btn {
+    border: none;
+    background: transparent;
+    color: #ef4444;
+    cursor: pointer;
+    font-size: 18px;
+    border-radius: 5px;
+    padding: 4px 8px;
+}
+
+.delete-folder-btn:hover {
+    background: #fee2e2;
+}

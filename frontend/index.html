@@ -15,9 +15,18 @@
     <button class="nav-btn active" data-filter="all">All Notes</button>
     <button class="nav-btn" data-filter="favorite">Favorites</button>
     <button class="nav-btn" data-filter="pinned">Pinned</button>
-    <button class="nav-btn" data-filter="Personal">Personal</button>
-    <button class="nav-btn" data-filter="Work">Work</button>
-    <button class="nav-btn" data-filter="archived">Archived</button>
+     <button class="nav-btn" data-filter="archived">Archived</button>
+   <div class="sidebar-section">
+    <h3>Categories</h3>
+    <div id="categoryFilters"></div>
+</div>
+
+<div class="sidebar-section">
+    <h3>Folders</h3>
+    <div id="folderFilters"></div>
+    <button id="addFolderBtn" class="nav-btn">+ Create Folder</button>
+</div>
+   
 </nav>
         </aside>
 
@@ -70,10 +79,11 @@
                     ></textarea>
 
                     <select id="noteCategory">
-                        <option value="Personal">Personal</option>
-                        <option value="Work">Work</option>
+                     <option value="">Select Category</option>
                     </select>
-
+                  <select id="noteFolder">
+                <option value="">No Folder</option>
+                 </select>
                     <div class="form-buttons">
                         <button type="submit" id="saveBtn">Save Note</button>
                         <button type="button" id="cancelBtn">Cancel</button>
