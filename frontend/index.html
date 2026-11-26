@@ -16,16 +16,33 @@
     <button class="nav-btn" data-filter="favorite">Favorites</button>
     <button class="nav-btn" data-filter="pinned">Pinned</button>
      <button class="nav-btn" data-filter="archived">Archived</button>
-   <div class="sidebar-section">
-    <h3>Categories</h3>
-    <div id="categoryFilters"></div>
+     
+<div class="sidebar-section">
+
+    <h4 class="sidebar-toggle" id="categoriesToggle">
+        Categories <span>▸</span>
+    </h4>
+
+    <div id="categorySection" class="sidebar-content hidden">
+        <div id="categoryFilters"></div>
+        <button id="addCategoryBtn" class="nav-btn">+ Add Category</button>
+    </div>
+
 </div>
 
 <div class="sidebar-section">
-    <h3>Folders</h3>
-    <div id="folderFilters"></div>
-    <button id="addFolderBtn" class="nav-btn">+ Create Folder</button>
+
+    <h4 class="sidebar-toggle" id="foldersToggle">
+        Folders <span>▸</span>
+    </h4>
+
+    <div id="folderSection" class="sidebar-content hidden">
+        <div id="folderFilters"></div>
+        <button id="addFolderBtn" class="nav-btn">+ Create Folder</button>
+    </div>
+
 </div>
+
    
 </nav>
         </aside>
@@ -84,6 +101,11 @@
                   <select id="noteFolder">
                 <option value="">No Folder</option>
                  </select>
+                 <input
+    type="text"
+    id="noteTags"
+    placeholder="Tags (comma separated, e.g. Java, DSA, Interview)"
+>
                     <div class="form-buttons">
                         <button type="submit" id="saveBtn">Save Note</button>
                         <button type="button" id="cancelBtn">Cancel</button>

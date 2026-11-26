@@ -8,18 +8,25 @@ const cancelBtn = document.getElementById("cancelBtn");
 const addFolderBtn = document.getElementById("addFolderBtn");
 const noteTitle = document.getElementById("noteTitle");
 const noteDescription = document.getElementById("noteDescription");
+const noteTags = document.getElementById("noteTags");
 const noteCategory = document.getElementById("noteCategory");
+const addCategoryBtn = document.getElementById("addCategoryBtn");
 const noteFolder = document.getElementById("noteFolder");
 const categoryFilters = document.getElementById("categoryFilters");
 const searchInput = document.getElementById("searchInput");
 const noteCount = document.getElementById("noteCount");
 const sectionTitle = document.getElementById("sectionTitle");
 const formTitle = document.getElementById("formTitle");
+const categoriesToggle = document.getElementById("categoriesToggle");
+const categorySection = document.getElementById("categorySection");
 
+const foldersToggle = document.getElementById("foldersToggle");
+const folderSection = document.getElementById("folderSection");
 let notes = [];
 let folders = [];
 let editingId = null;
 let currentFilter = "all";
+
 async function loadCategories() {
     try {
         const response = await fetch("/api/categories");
@@ -39,6 +46,7 @@ async function loadCategories() {
             option.textContent = category.name;
             noteCategory.appendChild(option);
 
+            // Create category button
             const button = document.createElement("button");
             button.className = "nav-btn";
             button.textContent = category.name;
@@ -56,13 +64,57 @@ async function loadCategories() {
                 displayNotes();
             });
 
-            categoryFilters.appendChild(button);
+            // Create delete button
+            const deleteButton = document.createElement("button");
+            deleteButton.className = "delete-category-btn";
+            deleteButton.textContent = "×";
+            deleteButton.title = "Delete category";
+
+            deleteButton.addEventListener("click", async (event) => {
+                event.stopPropagation();
+
+                if (!confirm(`Delete category "${category.name}"?`)) {
+                    return;
+                }
+
+                try {
+                    const deleteResponse = await fetch(
+                        `/api/categories/${category._id}`,
+                        {
+                            method: "DELETE"
+                        }
+                    );
+
+                    const data = await deleteResponse.json();
+
+                    if (deleteResponse.ok) {
+                        alert("Category deleted successfully!");
+                        await loadCategories();
+                        await getNotes();
+                    } else {
+                        alert(data.message || "Failed to delete category");
+                    }
+                } catch (error) {
+                    alert("Error deleting category");
+                    console.log(error);
+                }
+            });
+
+            // Put both buttons inside a wrapper
+            const categoryItem = document.createElement("div");
+            categoryItem.className = "category-item";
+
+            categoryItem.appendChild(button);
+            categoryItem.appendChild(deleteButton);
+
+            categoryFilters.appendChild(categoryItem);
         });
 
     } catch (error) {
         console.log(error);
     }
 }
+
 async function loadFolders() {
     try {
         const response = await fetch("/api/folders");
@@ -158,12 +210,13 @@ function displayNotes() {
     const searchText = searchInput.value.toLowerCase();
 
     let filteredNotes = notes.filter(note => {
-        return (
-            note.title.toLowerCase().includes(searchText) ||
-            note.description.toLowerCase().includes(searchText) ||
-            note.category.toLowerCase().includes(searchText)
-        );
-    });
+    return (
+        note.title.toLowerCase().includes(searchText) ||
+        note.description.toLowerCase().includes(searchText) ||
+        (note.category || "").toLowerCase().includes(searchText) ||
+        (note.tags || []).some(tag => tag.toLowerCase().includes(searchText))
+    );
+});
 
     if (currentFilter === "archived") {
     filteredNotes = filteredNotes.filter(note => note.isArchived);
@@ -223,7 +276,23 @@ if (folderName) {
     folderLabel.textContent = "📁 " + folderName;
     content.appendChild(folderLabel);
 }
-        content.append(title, description, category);
+content.append(title, description, category);
+
+// Display tags
+if (note.tags && note.tags.length > 0) {
+    const tagsContainer = document.createElement("div");
+    tagsContainer.className = "note-tags";
+
+    note.tags.forEach(tag => {
+        const tagElement = document.createElement("span");
+        tagElement.className = "note-tag";
+        tagElement.textContent = tag;
+
+        tagsContainer.appendChild(tagElement);
+    });
+
+    content.appendChild(tagsContainer);
+}
 
         const actions = document.createElement("div");
         actions.className = "note-actions";
@@ -279,7 +348,14 @@ noteForm.addEventListener("submit", async (e) => {
     title: noteTitle.value.trim(),
     description: noteDescription.value.trim(),
     category: noteCategory.value,
-    folder: noteFolder.value || null
+    folder: noteFolder.value || null,
+    tags: [...new Set(
+    noteTags.value
+        .split(",")
+        .map(tag => tag.trim())
+        .filter(tag => tag !== "")
+)]
+
 };
 
     if (!noteData.title || !noteData.description) {
@@ -334,6 +410,7 @@ function editNote(note) {
     noteFormContainer.classList.remove("hidden");
     noteCategory.value = note.category;
     noteFolder.value = note.folder || "";
+    noteTags.value = (note.tags || []).join(", ");
 }
 
 async function deleteNote(id) {
@@ -457,6 +534,46 @@ addFolderBtn.addEventListener("click", async () => {
     } catch (error) {
         alert(error.message);
     }
+});
+addCategoryBtn.addEventListener("click", async () => {
+    const categoryName = prompt("Enter category name:");
+
+    if (!categoryName || !categoryName.trim()) return;
+
+    try {
+        const response = await fetch("/api/categories", {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json"
+            },
+            body: JSON.stringify({ name: categoryName.trim() })
+        });
+
+        const data = await response.json();
+
+        if (response.ok) {
+            alert("Category created successfully!");
+            await loadCategories();
+        } else {
+            alert(data.message || "Failed to create category");
+        }
+    } catch (error) {
+        alert("Error creating category");
+        console.log(error);
+    }
+});
+categoriesToggle.addEventListener("click", () => {
+    categorySection.classList.toggle("hidden");
+
+    const arrow = categoriesToggle.querySelector("span");
+    arrow.textContent = categorySection.classList.contains("hidden") ? "▸" : "▾";
+});
+
+foldersToggle.addEventListener("click", () => {
+    folderSection.classList.toggle("hidden");
+
+    const arrow = foldersToggle.querySelector("span");
+    arrow.textContent = folderSection.classList.contains("hidden") ? "▸" : "▾";
 });
 //theme toggle
 const themeBtn = document.getElementById("themeBtn");

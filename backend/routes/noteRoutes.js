@@ -9,7 +9,8 @@ router.post("/", async (req, res) => {
             title,
             description,
             category,
-            folder
+            folder,
+            tags: req.body.tags || []
         });
 
         res.status(201).json(note);
@@ -40,9 +41,19 @@ router.get("/:id", async (req, res) => {
 });
 router.put("/:id", async (req, res) => {
     try {
+        const updateData = {
+            ...req.body
+        };
+
+        if (Array.isArray(req.body.tags)) {
+            updateData.tags = req.body.tags
+                .map(tag => tag.trim())
+                .filter(tag => tag !== "");
+        }
+
         const note = await Note.findByIdAndUpdate(
             req.params.id,
-            req.body,
+            updateData,
             { new: true, runValidators: true }
         );
 

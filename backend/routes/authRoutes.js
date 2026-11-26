@@ -1,10 +1,32 @@
 const crypto = require("crypto");
 const express = require("express");
+const passport = require("../config/passport");
 const bcrypt = require("bcryptjs");
 const User = require("../models/User");
 const transporter = require("../config/mailer");
 const router = express.Router();
+router.get("/google", passport.authenticate("google", {
+    scope: ["profile", "email"],
+    prompt: "select_account"
+}));
 
+router.get("/google/callback", (req, res, next) => {
+    passport.authenticate("google", (err, user) => {
+        if (err || !user) {
+            return res.redirect("/login.html?error=google");
+        }
+
+        req.session.userId = user._id;
+
+        req.session.save((err) => {
+            if (err) {
+                return next(err);
+            }
+
+            res.redirect("/");
+        });
+    })(req, res, next);
+});
 router.post("/register", async (req, res) => {
     try {
         const { name, email, password } = req.body;
@@ -70,11 +92,9 @@ router.post("/login", async (req, res) => {
                 message: "Invalid email or password"
             });
         }
-
-        const isPasswordCorrect = await bcrypt.compare(
-            password,
-            user.password
-        );
+       const isPasswordCorrect = user.password
+    ? await bcrypt.compare(password, user.password)
+    : false;
 
         if (!isPasswordCorrect) {
             return res.status(401).json({

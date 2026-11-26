@@ -132,3 +132,10 @@ if (resetPasswordForm) {
         }
     });
 }
+const googleLoginBtn = document.getElementById("googleLoginBtn");
+
+if (googleLoginBtn) {
+    googleLoginBtn.addEventListener("click", () => {
+        window.location.href = "/api/auth/google";
+    });
+}

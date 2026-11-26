@@ -1,6 +1,7 @@
 const dotenv = require("dotenv");
 dotenv.config();
 const express = require("express");
+const passport = require("./config/passport");
 const mongoose = require("mongoose");
 const path = require("path");
 const session = require("express-session");
@@ -12,6 +13,8 @@ const folderRoutes = require("./routes/folderRoutes");
 const categoryRoutes = require("./routes/categoryRoutes");
 
 const app = express();
+app.use(passport.initialize());
+
 
 app.use(express.json());
 
